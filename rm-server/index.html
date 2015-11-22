@@ -1,0 +1,48 @@
+<html>
+<head>
+  <title>RM Navigation Panel</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/styles/bootstrap.min.css">
+
+  <script>
+    $(document).ready(function() {
+      var socket, handleMoveEvents;
+
+      socket = io();
+
+      handleMoveEvents = function (cssClass, value) {
+        var cssSelector;
+
+        cssSelector = '.' + cssClass;
+
+        $(cssSelector).mousedown(function () {
+          socket.emit('move', value);
+        });
+
+        $(cssSelector).mouseup(function () {
+          socket.emit('stop');
+        });
+
+        $(cssSelector).mouseout(function () {
+          socket.emit('stop');
+        });
+      };
+
+      handleMoveEvents('forward', 'F');
+      handleMoveEvents('left', 'L');
+      handleMoveEvents('right', 'R');
+      handleMoveEvents('back', 'B');
+    });
+  </script>
+</head>
+<body>
+
+  <div class="navigation-panel">
+    <div class="btn btn-primary btn-navigation forward">Forward</div>
+    <div class="btn btn-primary btn-navigation left">Left</div>
+    <div class="btn btn-primary btn-navigation right">Right</div>
+    <div class="btn btn-primary btn-navigation back">Back</div>
+  </div>
+</body>
+</html>
