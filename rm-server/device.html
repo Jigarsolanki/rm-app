@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>Device</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/styles/bootstrap.min.css">
+
+  <script>
+    $(document).ready(function() {
+      var socket;
+
+      socket = io();
+      socket.emit('register', 'device');
+      socket.on('ready', function () {
+        var moveInstructions;
+
+        moveInstructions = {
+          'F': 'Move Forward',
+          'L': 'Move Left',
+          'R': 'Move Right',
+          'B': 'Move Back'
+        };
+
+        addLog = function (msg) {
+          $('.navigation-logs').prepend("<div>" + msg + "</div>");
+        }
+
+        socket.on('move', function (msg) {
+          if (!moveInstructions[msg]) {
+            return;
+          }
+          addLog(moveInstructions[msg]);
+        });
+
+        socket.on('stop', function (msg) {
+          addLog('Stopping');
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="navigation-logs"></div>
+</body>
+</html>

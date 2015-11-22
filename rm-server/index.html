@@ -1,48 +1,58 @@
 <html>
 <head>
-  <title>RM Navigation Panel</title>
+  <title>Panel</title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
   <link rel="stylesheet" type="text/css" href="/static/styles/bootstrap.min.css">
 
   <script>
     $(document).ready(function() {
-      var socket, handleMoveEvents;
+      var socket;
 
       socket = io();
+      socket.emit('register', 'panel');
 
-      handleMoveEvents = function (cssClass, value) {
-        var cssSelector;
+      socket.on('ready', function () {
+        var handleMoveEvents;
 
-        cssSelector = '.' + cssClass;
+        handleMoveEvents = function (cssClass, value) {
+          var cssSelector;
 
-        $(cssSelector).mousedown(function () {
-          socket.emit('move', value);
+          cssSelector = '.' + cssClass;
+
+          $(cssSelector).mousedown(function () {
+            socket.emit('move', value);
+          });
+
+          $(cssSelector).mouseup(function () {
+            socket.emit('stop');
+          });
+
+          $(cssSelector).mouseout(function () {
+            socket.emit('stop');
+          });
+        };
+
+        handleMoveEvents('forward', 'F');
+        handleMoveEvents('left', 'L');
+        handleMoveEvents('right', 'R');
+        handleMoveEvents('back', 'B');
+
+
+        $('.btn-navigation').each(function (i, button) {
+          $(button).removeAttr('disabled');
         });
-
-        $(cssSelector).mouseup(function () {
-          socket.emit('stop');
-        });
-
-        $(cssSelector).mouseout(function () {
-          socket.emit('stop');
-        });
-      };
-
-      handleMoveEvents('forward', 'F');
-      handleMoveEvents('left', 'L');
-      handleMoveEvents('right', 'R');
-      handleMoveEvents('back', 'B');
+      });
     });
   </script>
 </head>
 <body>
 
   <div class="navigation-panel">
-    <div class="btn btn-primary btn-navigation forward">Forward</div>
-    <div class="btn btn-primary btn-navigation left">Left</div>
-    <div class="btn btn-primary btn-navigation right">Right</div>
-    <div class="btn btn-primary btn-navigation back">Back</div>
+    <button class="btn btn-primary btn-navigation forward" disabled="disabled">Forward</button>
+    <button class="btn btn-primary btn-navigation left" disabled="disabled">Left</button>
+    <button class="btn btn-primary btn-navigation right" disabled="disabled">Right</button>
+    <button class="btn btn-primary btn-navigation back" disabled="disabled">Back</button>
   </div>
 </body>
 </html>
