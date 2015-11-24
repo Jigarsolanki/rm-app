@@ -3,7 +3,10 @@
   <title>Panel</title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
   <link rel="stylesheet" type="text/css" href="/static/styles/bootstrap.min.css">
+  <link rel="stylesheet" type="text/less" href="/static/styles/panel.less">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.3/less.min.js"></script>
 
   <script>
     $(document).ready(function() {
@@ -47,12 +50,27 @@
   </script>
 </head>
 <body>
-
+<!--
   <div class="navigation-panel">
     <button class="btn btn-primary btn-navigation forward" disabled="disabled">Forward</button>
     <button class="btn btn-primary btn-navigation left" disabled="disabled">Left</button>
     <button class="btn btn-primary btn-navigation right" disabled="disabled">Right</button>
     <button class="btn btn-primary btn-navigation back" disabled="disabled">Back</button>
+  </div>
+ -->
+  <div class="arrow-navigation-panel">
+    <div class="arrow-navigation-button">
+      <div class="arrow-forward btn btn-primary btn-navigation"></div>
+    </div>
+    <div class="arrow-navigation-button side left">
+      <div class="arrow-left btn btn-primary btn-navigation"></div>
+    </div>
+    <div class="arrow-navigation-button side right">
+      <div class="arrow-right btn btn-primary btn-navigation"></div>
+    </div>
+    <div class="arrow-navigation-button">
+      <div class="arrow-back btn btn-primary btn-navigation"></div>
+    </div>
   </div>
 </body>
 </html>

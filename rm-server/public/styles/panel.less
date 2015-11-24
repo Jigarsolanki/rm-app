@@ -1,0 +1,53 @@
+@arrow-width: 50px;
+@arrow-height: 50px;
+
+.arrow-navigation-button {
+  overflow: hidden;
+  height: 42.5px;
+  width: 150px;
+  &.side {
+    width: 42.5px;
+    height: 68px;
+    float: left;
+    &.left {
+      margin-right: 32px;
+    }
+    &.right {
+      margin-left: 33px;
+    }
+  }
+}
+
+
+.btn-navigation {
+  height: @arrow-height;
+  width: @arrow-width;
+  transform: rotate(45deg);
+}
+.arrow-forward {
+  margin-top: 18px;
+}
+.arrow-left {
+  margin-top: 9px;
+  margin-left: 18px;
+}
+.arrow-right {
+  margin-top: 9px;
+  margin-left: -42.5px
+}
+.arrow-back {
+  margin-top: -26px;
+  margin-left: 0px;
+}
+.arrow-navigation-panel {
+  width: 150px;
+  margin: auto;
+  text-align: center;
+  &:after {
+    content: ".";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+  }
+}
