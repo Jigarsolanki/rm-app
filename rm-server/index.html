@@ -10,37 +10,55 @@
 
   <script>
     $(document).ready(function() {
-      var socket;
+      var socket, isReady, hasDoneSetup, handleMoveEvents;
 
       socket = io();
-      socket.emit('register', 'panel');
+      socket.emit('register', { 'type': 'panel', 'key': window.location.hash.split('#')[1] });
+
+      handleMoveEvents = function (cssClass, value) {
+        var cssSelector;
+
+        cssSelector = '.' + cssClass;
+
+        $(cssSelector).mousedown(function () {
+          if (!isReady) {
+            return;
+          }
+
+          socket.emit('move', value);
+        });
+
+        $(cssSelector).mouseup(function () {
+          if (!isReady) {
+            return;
+          }
+
+          socket.emit('stop');
+        });
+
+        $(cssSelector).mouseout(function () {
+          if (!isReady) {
+            return;
+          }
+
+          socket.emit('stop');
+        });
+      };
+
+      handleMoveEvents('forward', 'F');
+      handleMoveEvents('left', 'L');
+      handleMoveEvents('right', 'R');
+      handleMoveEvents('back', 'B');
 
       socket.on('ready', function () {
-        var handleMoveEvents;
+        isReady = true;
 
-        handleMoveEvents = function (cssClass, value) {
-          var cssSelector;
-
-          cssSelector = '.' + cssClass;
-
-          $(cssSelector).mousedown(function () {
-            socket.emit('move', value);
-          });
-
-          $(cssSelector).mouseup(function () {
-            socket.emit('stop');
-          });
-
-          $(cssSelector).mouseout(function () {
-            socket.emit('stop');
-          });
-        };
-
-        handleMoveEvents('forward', 'F');
-        handleMoveEvents('left', 'L');
-        handleMoveEvents('right', 'R');
-        handleMoveEvents('back', 'B');
-
+        socket.on('not_ready', function () {
+        $('.btn-navigation').each(function (i, button) {
+          $(button).attr('disabled', 'disabled');
+        });
+          isReady = false;
+        });
 
         $('.btn-navigation').each(function (i, button) {
           $(button).removeAttr('disabled');
@@ -50,26 +68,18 @@
   </script>
 </head>
 <body>
-<!--
-  <div class="navigation-panel">
-    <button class="btn btn-primary btn-navigation forward" disabled="disabled">Forward</button>
-    <button class="btn btn-primary btn-navigation left" disabled="disabled">Left</button>
-    <button class="btn btn-primary btn-navigation right" disabled="disabled">Right</button>
-    <button class="btn btn-primary btn-navigation back" disabled="disabled">Back</button>
-  </div>
- -->
   <div class="arrow-navigation-panel">
-    <div class="arrow-navigation-button">
-      <div class="arrow-forward btn btn-primary btn-navigation"></div>
+    <div class="arrow-navigation-button forward">
+      <button class="arrow-forward btn btn-primary btn-navigation" disabled></button>
     </div>
     <div class="arrow-navigation-button side left">
-      <div class="arrow-left btn btn-primary btn-navigation"></div>
+      <button class="arrow-left btn btn-primary btn-navigation" disabled></button>
     </div>
     <div class="arrow-navigation-button side right">
-      <div class="arrow-right btn btn-primary btn-navigation"></div>
+      <button class="arrow-right btn btn-primary btn-navigation" disabled></button>
     </div>
-    <div class="arrow-navigation-button">
-      <div class="arrow-back btn btn-primary btn-navigation"></div>
+    <div class="arrow-navigation-button back">
+      <button class="arrow-back btn btn-primary btn-navigation" disabled></button>
     </div>
   </div>
 </body>

@@ -3,8 +3,9 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var deviceSocket;
-var panelSocket;
+var pairedConnections = {};
+var deviceSessions = {};
+var panelSessions = {};
 
 app.use('/static', express.static('public'));
 
@@ -17,53 +18,92 @@ app.get('/device', function (req, res){
 });
 
 io.on('connection', function (socket) {
-  console.log('New connetion');
 
   socket.on('disconnect', function () {
-    if (socket === panelSocket) {
-      panelSocket = null;
+    var socketId, key, deviceSocket, panelSocket;
+
+    socketId = socket.id;
+
+    if (panelSessions[socketId]) {
+      key = panelSessions[socketId]['key'];
+
+      panelSessions[socketId]['socket'].removeAllListeners();
+      delete panelSessions[socketId];
+      delete pairedConnections[key]['panel'];
+      deviceSocket = pairedConnections[key]['device'];
 
       if (deviceSocket) {
-        deviceSocket.emit('panel_disconnected');
+        deviceSocket.emit('not_ready');
+      } else {
+        delete pairedConnections[key];
       }
+    } else if (deviceSessions[socketId]) {
+      key = deviceSessions[socketId]['key'];
 
-      console.log('Panel disconnected');
-    } else if (socket === deviceSocket) {
-      deviceSocket = null;
+      deviceSessions[socketId]['socket'].removeAllListeners();
+      delete deviceSessions[socketId];
+      delete pairedConnections[key]['device'];
+      panelSocket = pairedConnections[key]['panel'];
 
       if (panelSocket) {
-        panelSocket.emit('device_disconnected');
+        panelSocket.emit('not_ready');
+      } else {
+        delete pairedConnections[key];
       }
-
-      console.log('Device disconnected');
     }
   });
 
-  socket.on('register', function (msg) {
-    if (msg === 'panel' && !panelSocket) {
-      panelSocket = socket;
-      console.log('Panel connected');
-    } else if (msg === 'device' && !deviceSocket) {
-      deviceSocket = socket;
-      console.log('Device connected');
+  socket.on('register', function (data) {
+    var type, key, pair, socketId;
+
+    type = data['type'];
+    key = data['key'];
+    socketId = socket.id;
+
+    if (!pairedConnections[key]) {
+      pairedConnections[key] = {};
     }
 
-    if (panelSocket && deviceSocket) {
-      panelSocket.on('move', function (msg) {
-        deviceSocket.emit('move', msg);
-        console.log('MOVE: ' + msg);
+    if (type === 'panel' && !panelSessions[socketId] && !pairedConnections[key]['panel']) {
+      panelSessions[socketId] = {
+        'socket': socket,
+        'key': key
+      };
+      pairedConnections[key]['panel'] = socket;
+
+      socket.on('move', function (msg) {
+        var pairedDevice;
+
+        pairedDevice = pairedConnections[key]['device'];
+
+        if (pairedDevice) {
+          pairedDevice.emit('move', msg);
+        }
       });
-      panelSocket.on('stop', function () {
-        deviceSocket.emit('stop');
-        console.log('STOP');
+      socket.on('stop', function () {
+        var pairedDevice;
+
+        pairedDevice = pairedConnections[key]['device'];
+
+        if (pairedDevice) {
+          pairedDevice.emit('stop');
+        }
       });
 
-      panelSocket.emit('ready');
-      deviceSocket.emit('ready');
+    } else if (type === 'device' && !deviceSessions[socketId] && !pairedConnections[key]['device']) {
+      deviceSessions[socketId] = {
+        'socket': socket,
+        'key': key
+      };
+      pairedConnections[key]['device'] = socket;
+    }
+
+    if (pairedConnections[key]['panel'] && pairedConnections[key]['device']) {
+      pairedConnections[key]['panel'].emit('ready');
+      pairedConnections[key]['device'].emit('ready');
     }
   });
 });
 
 http.listen(3000, function () {
-  console.log('listening on *:3000');
 });

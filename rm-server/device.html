@@ -7,24 +7,22 @@
 
   <script>
     $(document).ready(function() {
-      var socket;
+      var socket, moveInstructions;
 
       socket = io();
-      socket.emit('register', 'device');
+      socket.emit('register', { 'type': 'device', 'key': window.location.hash.split('#')[1] });
+      moveInstructions = {
+        'F': 'Move Forward',
+        'L': 'Move Left',
+        'R': 'Move Right',
+        'B': 'Move Back'
+      };
+
+      addLog = function (msg) {
+        $('.navigation-logs').prepend("<div>" + msg + "</div>");
+      }
+
       socket.on('ready', function () {
-        var moveInstructions;
-
-        moveInstructions = {
-          'F': 'Move Forward',
-          'L': 'Move Left',
-          'R': 'Move Right',
-          'B': 'Move Back'
-        };
-
-        addLog = function (msg) {
-          $('.navigation-logs').prepend("<div>" + msg + "</div>");
-        }
-
         socket.on('move', function (msg) {
           if (!moveInstructions[msg]) {
             return;
@@ -34,6 +32,11 @@
 
         socket.on('stop', function (msg) {
           addLog('Stopping');
+        });
+
+        socket.on('not_ready', function () {
+          socket.removeEventListener('move');
+          socket.removeEventListener('stop');
         });
       });
     });
