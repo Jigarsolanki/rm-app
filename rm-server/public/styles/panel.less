@@ -18,7 +18,6 @@
   }
 }
 
-
 .btn-navigation {
   height: @arrow-height;
   width: @arrow-width;
@@ -42,6 +41,7 @@
   width: 150px;
   margin: auto;
   text-align: center;
+  position: relative;
   &:after {
     content: ".";
     visibility: hidden;
@@ -50,3 +50,16 @@
     clear: both;
   }
 }
+
+.loader {
+  background-image: url('/static/images/loading.gif');
+  height: 60px;
+  width: 60px;
+  position: absolute;
+  left: 46px;
+  top: 46px;
+  &.loaded {
+    background-image: url('/static/images/loaded.png');
+  }
+}
+

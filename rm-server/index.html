@@ -56,6 +56,7 @@
         socket.on('not_ready', function () {
         $('.btn-navigation').each(function (i, button) {
           $(button).attr('disabled', 'disabled');
+          $('.loader').removeClass('loaded');
         });
           isReady = false;
         });
@@ -63,12 +64,14 @@
         $('.btn-navigation').each(function (i, button) {
           $(button).removeAttr('disabled');
         });
+        $('.loader').addClass('loaded');
       });
     });
   </script>
 </head>
 <body>
   <div class="arrow-navigation-panel">
+    <div class="loader"></div>
     <div class="arrow-navigation-button forward">
       <button class="arrow-forward btn btn-primary btn-navigation" disabled></button>
     </div>
