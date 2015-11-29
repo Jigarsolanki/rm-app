@@ -20,7 +20,7 @@
 
         cssSelector = '.' + cssClass;
 
-        $(cssSelector).mousedown(function () {
+        $(cssSelector).on('tap mousedown', function () {
           if (!isReady) {
             return;
           }
